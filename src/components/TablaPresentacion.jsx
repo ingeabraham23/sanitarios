@@ -24,6 +24,7 @@ function TablaPresentacion() {
     "Recaudación semanal para mantenimiento del sanitario."
   );
   const [recaudador, setRecaudador] = useState("Recauda: JoyBoy.");
+  const [semana, setSemana] = useState("Semana del: ");
   const containerRef = useRef(null);
 
   const fechaActual = new Date(); // Obtiene la fecha actual
@@ -70,10 +71,24 @@ function TablaPresentacion() {
       }
     }
 
+    async function fetchSemana() {
+      try {
+        const data = await db.semana.toArray();
+        if (data.length > 0) {
+          setSemana(data[0].texto);
+        }
+      } catch (error) {
+        console.error(
+          "Error al obtener el recaudador de la tabla de Dexie:",
+          error
+        );
+      }
+    }
+
     fetchPersonas();
     fetchEncabezado();
     fetchRecaudador();
-    
+    fetchSemana();
   }, []);
 
   const obtenerColorFila = (estado) => {
@@ -90,6 +105,8 @@ function TablaPresentacion() {
         return "white"; //No se le pidio
       case 7:
         return "#000000"; //No quiso dar
+      case 8:
+        return "#000000"; //No quiso dar
       default:
         return "white";
     }
@@ -103,12 +120,18 @@ function TablaPresentacion() {
         return "#000000"; //Activo
       case 2:
         return "#000000"; //Taller
+      case 3:
+        return "#000000"; //Taller
+      case 4:
+        return "#000000"; //Taller
       case 5:
         return "#000000"; //Posturero
       case 6:
         return "#000000"; //No se le pidio
       case 7:
-        return "red"; //No quiso dar
+        return "red"; //Debe 2 Semanas ($30)
+      case 8:
+        return "yellow"; //Debe 1 Semanas ($15)
       default:
         return "#000000";
     }
@@ -116,13 +139,15 @@ function TablaPresentacion() {
 
   const handleCaptureTable = () => {
     if (containerRef.current) {
-      const scale = 2;
+      const scale = 4;
       html2canvas(containerRef.current, { scale }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const downloadLink = document.createElement("a");
         downloadLink.href = imgData;
         downloadLink.download =
-          encabezado + fechaSeleccionada.toLocaleDateString("es-MX", opciones);
+          encabezado +
+          semana +
+          fechaSeleccionada.toLocaleDateString("es-MX", opciones);
         downloadLink.click();
       });
     }
@@ -142,7 +167,7 @@ function TablaPresentacion() {
   const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
-  
+
   return (
     <div>
       <div ref={containerRef}>
@@ -150,35 +175,55 @@ function TablaPresentacion() {
           <table style={{ width: "100%" }}>
             <tbody>
               <tr>
-                <td style={{ fontSize:"10px", backgroundColor: "#F41010" }}>0: Fuera de servicio.</td>
-                <td style={{ fontSize:"10px", backgroundColor: "#AAFF00" }}>1: Activo.</td>
-              </tr>
-              <tr >
-                <td style={{ fontSize:"10px", backgroundColor: "#EFEF0F" }}>2: Taller.</td>
-                <td style={{ fontSize:"10px", backgroundColor: "#FF8503" }}>5: Posturero.</td>
-              </tr>
-              <tr>
-                
+                <td style={{ fontSize: "10px", backgroundColor: "#F41010" }}>
+                  0: Fuera de servicio.
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "#AAFF00" }}>
+                  1: Planta.
+                </td>
               </tr>
               <tr>
-                <td style={{ fontSize:"10px", backgroundColor: "white" }}>6: No se le pidio.</td>
-                <td style={{ fontSize:"10px", backgroundColor: "#000000", color: "red" }}>7: No quiso dar.</td>
+                <td style={{ fontSize: "10px", backgroundColor: "#EFEF0F" }}>
+                  2: Taller.
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "#FF8503" }}>
+                  5: Posturero.
+                </td>
+              </tr>
+              <tr></tr>
+              <tr>
+                <td style={{ fontSize: "10px", backgroundColor: "white" }}>
+                  6: No se le pidio.
+                </td>
+                <td
+                  style={{
+                    fontSize: "10px",
+                    backgroundColor: "#000000",
+                    color: "red",
+                  }}
+                >
+                  7: Debe 2 semanas ($30).
+                </td>
               </tr>
               <tr>
-                
+                <td
+                  style={{
+                    fontSize: "10px",
+                    backgroundColor: "#000000",
+                    color: "yellow",
+                  }}
+                >
+                  8: Debe 1 semana ($15).
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "white" }}></td>
               </tr>
-              <tr>
-                
-              </tr>
+              <tr></tr>
             </tbody>
           </table>
         </div>
-        <div className="container">
-          {encabezado}
-        </div>
-        <div className="container2">
-          {recaudador}
-        </div>
+        <div className="container">{encabezado}</div>
+        <div className="container2">{recaudador}</div>
+        <div className="container3">{semana}</div>
         <div className="container">
           Fecha: {fechaSeleccionada.toLocaleDateString("es-MX", opciones)}
         </div>
@@ -242,29 +287,38 @@ function TablaPresentacion() {
 
         <div className="container-pie">
           Total: ${" "}
-          {formatNumberWithCommas(personas
-            .reduce(
-              (total, persona) => total + parseFloat(persona.cooperacion),
-              0
-            )
-            .toFixed(2))}
+          {formatNumberWithCommas(
+            personas
+              .reduce(
+                (total, persona) => total + parseFloat(persona.cooperacion),
+                0
+              )
+              .toFixed(2)
+          )}
         </div>
-        <div className="container-pie2" style={{backgroundColor: "DeepSkyBlue" }}>Total de Personas: {personas.length}</div>
-        <div className="container-pie2" style={{backgroundColor: "Chartreuse" }}>
+        <div
+          className="container-pie2"
+          style={{ backgroundColor: "DeepSkyBlue" }}
+        >
+          Total de Personas: {personas.length}
+        </div>
+        <div
+          className="container-pie2"
+          style={{ backgroundColor: "Chartreuse" }}
+        >
           Total Personas que colaboraron: {personasConCooperacion.length}
         </div>
-        <div className="container-pie2" style={{backgroundColor: "red" }}>
+        <div className="container-pie2" style={{ backgroundColor: "red" }}>
           Total Personas que no colaboraron: {personasSinCooperacion.length}
         </div>
-        <div className="container-pie2" style={{backgroundColor: "white" }}>
+        <div className="container-pie2" style={{ backgroundColor: "white" }}>
           ©JoyBoy
         </div>
       </div>
       <div className="container-calendar">
-      <button onClick={handleCaptureTable}>Capturar Tabla</button>
+        <button onClick={handleCaptureTable}>Capturar Tabla</button>
       </div>
       <div className="container-calendar">
-        
         <DatePicker
           selected={fechaSeleccionada}
           showIcon

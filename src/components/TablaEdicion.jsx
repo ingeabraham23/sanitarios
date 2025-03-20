@@ -11,6 +11,7 @@ function TablaEdicion() {
   const [recaudador, setRecaudador] = useState(
     "Recauda: JoyBoy."
   );
+  const [semana, setSemana] = useState("Semana del: ");
 
   useEffect(() => {
     async function fetchPersonas() {
@@ -24,6 +25,10 @@ function TablaEdicion() {
         const header2 = await db.recaudador.get(1);
         if (header2) {
           setRecaudador(header2.texto);
+        }
+        const header3 = await db.semana.get(1);
+        if (header3) {
+          setSemana(header3.texto);
         }
       } catch (error) {
         console.error(
@@ -76,6 +81,22 @@ function TablaEdicion() {
     }
   };
 
+  const handleEncabezado3Change = async (event) => {
+    const texto = event.target.value;
+    setSemana(texto);
+
+    try {
+      await db.semana.clear();
+      await db.semana.put({ id: 1, texto });
+      console.log("Encabezado guardado en la tabla de Dexie");
+    } catch (error) {
+      console.error(
+        "Error al guardar el encabezado en la tabla de Dexie:",
+        error
+      );
+    }
+  };
+
 
   const handleDelete = (index) => {
     const updatedPersonas = [...personas];
@@ -95,7 +116,57 @@ function TablaEdicion() {
 
   return (
     <div>
-      <br></br>
+
+<div style={{ width: "98%", margin: "0 auto" }}>
+          <table style={{ width: "100%" }}>
+            <tbody>
+              <tr>
+                <td style={{ fontSize: "10px", backgroundColor: "#F41010" }}>
+                  0: Fuera de servicio.
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "#AAFF00" }}>
+                  1: Planta.
+                </td>
+              </tr>
+              <tr>
+                <td style={{ fontSize: "10px", backgroundColor: "#EFEF0F" }}>
+                  2: Taller.
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "#FF8503" }}>
+                  5: Posturero.
+                </td>
+              </tr>
+              <tr></tr>
+              <tr>
+                <td style={{ fontSize: "10px", backgroundColor: "white" }}>
+                  6: No se le pidio.
+                </td>
+                <td
+                  style={{
+                    fontSize: "10px",
+                    backgroundColor: "#000000",
+                    color: "red",
+                  }}
+                >
+                  7: Debe 2 semanas ($30).
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    fontSize: "10px",
+                    backgroundColor: "#000000",
+                    color: "yellow",
+                  }}
+                >
+                  8: Debe 1 semana ($15).
+                </td>
+                <td style={{ fontSize: "10px", backgroundColor: "white" }}></td>
+              </tr>
+              <tr></tr>
+            </tbody>
+          </table>
+        </div>
       <br></br>
       <div className="container-encabezado">
         <label htmlFor="encabezadoInput"></label>
@@ -114,6 +185,15 @@ function TablaEdicion() {
           id="recaudadorInput"
           value={recaudador}
           onChange={handleEncabezado2Change}
+        />
+      </div>
+      <div className="container-encabezado3">
+        <label htmlFor="semanaInput"></label>
+        <input
+          className="input-semana"
+          id="semanaInput"
+          value={semana}
+          onChange={handleEncabezado3Change}
         />
       </div>
       <div style={{ width: "50%", margin: "0 auto" }}>

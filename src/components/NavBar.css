@@ -1,8 +1,8 @@
 /* Navbar.css */
 .navbar {
-    background-color: #bdeb1a;
+    background-color: #008cff;
     padding: 10px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 3px solid #575757;
   }
   
   .navbar-nav {

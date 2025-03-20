@@ -97,6 +97,16 @@ table {
     background-color: #00ccff;
     font-size: small;
   }
+
+  .container3 {
+    border: 1px solid black; /* Agrega el borde de 1px de ancho y color negro */
+    width: 98%; /* Ajusta el ancho del div */
+    margin: 1px; /* Centra horizontalmente el div */
+    padding: 1px; /* Agrega un espacio interno alrededor del contenido del div */
+    text-align: center; /* Centra el texto horizontalmente */
+    background-color: lightcoral;
+    font-size: 18px;
+  }
   
   .container-pie {
     border: 1px solid black; /* Agrega el borde de 1px de ancho y color negro */
